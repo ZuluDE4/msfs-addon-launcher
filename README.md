@@ -4,7 +4,7 @@ Startet deine Zusatzprogramme und den Microsoft Flight Simulator 2024 mit einem 
 wartet mit Programmen, die eine Sim-Verbindung brauchen, bis der Sim bereit ist, und
 schließt sie auf Wunsch wieder, wenn du den Sim beendest.
 
-> **Early Access (Alpha), Version 0.9.1.** Frühe Testversion eines privaten Hobbyprojekts.
+> **Early Access (Alpha), Version 0.9.2.** Frühe Testversion eines privaten Hobbyprojekts.
 > Sie kann Fehler enthalten und sich jederzeit ändern. Nutzung auf eigene Gefahr, ohne
 > Gewährleistung und ohne Anspruch auf Support. Details unter [Haftungsausschluss](#haftungsausschluss).
 
@@ -129,7 +129,13 @@ Der MSFS Addon Launcher ist ein privates Hobbyprojekt im Stadium Early Access (A
 - Das Projekt steht in keiner Verbindung zu Microsoft, Asobo Studio oder den Herstellern der
   Zusatzprogramme. Alle Namen und Marken gehören ihren jeweiligen Inhabern.
 
-## Stand der Tests (Version 0.9.1)
+## Stand der Tests (Version 0.9.2)
+
+Neu in 0.9.2: Die Auto-Erkennung kennt jetzt die Rowsfire-App (RF-Connect) und SimAppPro
+(WINCTRL/WINWING) als Cockpit-Hardware. Beide werden für den Start nach dem Sim vorgeschlagen
+und beim Sim-Ende nicht geschlossen. SimAppPro verlangt von sich aus Adminrechte; Windows fragt
+deshalb bei jedem Start über den Launcher nach. Die Erkennung ist automatisch geprüft, der Start
+der beiden Programme über den Launcher noch nicht.
 
 Neu in 0.9.1 (nach der ersten Rückmeldung): Reihenfolge per Ziehen mit der Maus, Suchfeld und
 „Alle anzeigen" in der Auto-Erkennung, mehr erkannte Programme (z. B. Navigraph Hub), mehrere

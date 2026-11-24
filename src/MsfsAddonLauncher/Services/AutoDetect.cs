@@ -98,9 +98,15 @@ public static class AutoDetect
         new(new[] { "spad.next" }, StartPhase.VorSim, 0, "Hardware", Schliessen: false),
         new(new[] { "axis and ohs", "axisandohs" }, StartPhase.NachSim, 10, "Hardware"),
         new(new[] { "mobiflight" }, StartPhase.VorSim, 0, "Hardware", Schliessen: false),
-        new(new[] { "rowsfire", "rf-connect" }, StartPhase.VorSim, 0, "Hardware", StandardAn: false, Schliessen: false),
+        // Rowsfire-App (RF-Connect) und SimAppPro (WINCTRL/WINWING) verbinden Cockpit-Hardware mit dem Sim.
+        // Sie starten nach dem Sim, weil dann die Sim-Verbindung sicher bereitsteht. Auf dem
+        // Entwicklungs-PC geprueft: Beide starten weder mit Windows noch ueber die exe.xml.
+        new(new[] { "rowsfire", "rf-connect" }, StartPhase.NachSim, 10, "Hardware", Schliessen: false),
+        // SimAppPro verlangt von sich aus Adminrechte (Manifest "highestAvailable"). Ein Launcher ohne
+        // Adminrechte kann es deshalb nicht schliessen; es bleibt beim Sim-Ende offen.
+        new(new[] { "simapppro", "winwing", "winctrl" }, StartPhase.NachSim, 10, "Hardware", Schliessen: false,
+            Hinweis: "Windows fragt beim Start nach Adminrechten"),
         new(new[] { "stream deck" }, StartPhase.VorSim, 0, "Hardware", StandardAn: false, Schliessen: false),
-        new(new[] { "simapppro" }, StartPhase.VorSim, 0, "Hardware", StandardAn: false, Schliessen: false),
         new(new[] { "fsltl" }, StartPhase.NachSim, 30, "Verkehr"),
         new(new[] { "traffic audio" }, StartPhase.NachSim, 20, "Verkehr"),
         new(new[] { "apronlife", "apron life" }, StartPhase.NachSim, 20, "Verkehr"),
@@ -181,10 +187,12 @@ public static class AutoDetect
         foreach (var v in ShortcutTools.Lesen(desktop)) Hinzu(v.Name, v.Ziel, v.Argumente, v.Arbeitsverzeichnis, "Desktop");
 
         // 2. Installierte Programme (Registry), aber nur bekannte Flugsim-Programme ohne Verknuepfung.
-        foreach (var (name, icon, ort) in InstallierteProgramme())
+        foreach (var (name, icon, ort, deinstallation) in InstallierteProgramme())
         {
             if (KatalogTreffer(name, "") == null) continue;
-            var exe = ExeAusIcon(icon) ?? EinzigeExe(ort);
+            // Manche Installer tragen keinen Installationsordner ein (z. B. SimAppPro); dann hilft
+            // der Ordner des Deinstallationsprogramms weiter.
+            var exe = ExeAusIcon(icon) ?? EinzigeExe(ort) ?? EinzigeExe(OrdnerAusBefehl(deinstallation));
             if (exe == null || pfade.Contains(Norm(exe))) continue;
             Hinzu(name, exe, "", "", "Installierte Programme");
         }
@@ -376,7 +384,26 @@ public static class AutoDetect
         catch { return null; }
     }
 
-    private static IEnumerable<(string Name, string? Icon, string? Ort)> InstallierteProgramme()
+    /// <summary>Liefert den Ordner der Programmdatei aus einer Befehlszeile wie "C:\x\unins.exe" /silent.</summary>
+    private static string? OrdnerAusBefehl(string? befehl)
+    {
+        if (string.IsNullOrWhiteSpace(befehl)) return null;
+        var m = Regex.Match(befehl.Trim(), "^\"([^\"]+)\"|^(.+?\\.exe)", RegexOptions.IgnoreCase);
+        if (!m.Success) return null;
+        try
+        {
+            var datei = ProcessTools.PfadAufloesen(m.Groups[1].Success ? m.Groups[1].Value : m.Groups[2].Value);
+            // Ohne vollen Pfad (z. B. "MsiExec.exe /X{...}") ist der Ordner unbekannt.
+            if (!Path.IsPathFullyQualified(datei)) return null;
+            var ordner = Path.GetDirectoryName(Norm(datei));
+            // Windows-eigene Deinstallationsprogramme (MsiExec) sagen nichts ueber den Programmordner.
+            var windows = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
+            return ordner == null || ordner.StartsWith(windows, StringComparison.OrdinalIgnoreCase) ? null : ordner;
+        }
+        catch { return null; }
+    }
+
+    private static IEnumerable<(string Name, string? Icon, string? Ort, string? Deinstallation)> InstallierteProgramme()
     {
         const string zweig = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
         var quellen = new (RegistryHive Hive, RegistryView Sicht)[]
@@ -386,7 +413,7 @@ public static class AutoDetect
             (RegistryHive.CurrentUser, RegistryView.Default)
         };
 
-        var liste = new List<(string, string?, string?)>();
+        var liste = new List<(string, string?, string?, string?)>();
         foreach (var (hive, sicht) in quellen)
         {
             try
@@ -400,7 +427,8 @@ public static class AutoDetect
                     {
                         using var k = key.OpenSubKey(unter);
                         if (k?.GetValue("DisplayName") is not string name || name.Length == 0) continue;
-                        liste.Add((name, k.GetValue("DisplayIcon") as string, k.GetValue("InstallLocation") as string));
+                        liste.Add((name, k.GetValue("DisplayIcon") as string, k.GetValue("InstallLocation") as string,
+                            k.GetValue("UninstallString") as string));
                     }
                     catch { /* einzelner Eintrag nicht lesbar */ }
                 }
