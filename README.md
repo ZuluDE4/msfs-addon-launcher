@@ -114,9 +114,12 @@ Der MSFS Addon Launcher ist ein privates Hobbyprojekt im Stadium Early Access (A
 
 - Die Software wird kostenlos und so bereitgestellt, wie sie ist, ohne Gewährleistung für
   Funktion, Fehlerfreiheit oder Eignung für einen bestimmten Zweck.
-- Die Nutzung erfolgt auf eigene Gefahr. Für Schäden, Datenverlust oder Probleme mit dem
-  Simulator oder mit Zusatzprogrammen wird keine Haftung übernommen, soweit das gesetzlich
-  zulässig ist.
+- Die Nutzung erfolgt auf eigene Gefahr. Der Autor haftet nicht für das, was das Programm auf
+  deinem PC tut oder verändert: weder für Schäden, Datenverlust oder geänderte Einstellungen
+  noch für Probleme mit Windows, dem Simulator, Zusatzprogrammen oder deren Online-Konten,
+  und auch nicht für Folgeschäden daraus, soweit das gesetzlich zulässig ist.
+- Der Launcher startet und beendet Programme auf deinem PC. Prüfe selbst, was du einträgst;
+  beim Beenden können ungespeicherte Daten dieser Programme verloren gehen.
 - Es gibt keinen Anspruch auf Support, Updates oder Fehlerbehebung.
 - Das Projekt steht in keiner Verbindung zu Microsoft, Asobo Studio oder den Herstellern der
   Zusatzprogramme. Alle Namen und Marken gehören ihren jeweiligen Inhabern.
