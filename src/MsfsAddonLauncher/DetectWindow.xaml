@@ -14,6 +14,14 @@
             <TextBlock x:Name="TitelText" FontSize="18" FontWeight="SemiBold" Text="Gefundene Programme" />
             <TextBlock x:Name="ErklaerText" TextWrapping="Wrap" Margin="0,6,0,0" Opacity="0.8" />
             <TextBlock x:Name="SimText" TextWrapping="Wrap" Margin="0,4,0,0" Opacity="0.8" Visibility="Collapsed" />
+            <!-- Suche und "Alle anzeigen" stehen ueber der Liste, damit man sie nicht uebersieht. -->
+            <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                <TextBlock Text="Suchen" VerticalAlignment="Center" Margin="0,0,10,0" />
+                <TextBox x:Name="SuchBox" Width="240" VerticalAlignment="Center" TextChanged="SuchBox_TextChanged"
+                         ToolTip="Durchsucht alle gefundenen Programme nach Name, Art und Pfad" />
+                <CheckBox x:Name="AlleBox" Click="AlleBox_Click" VerticalAlignment="Center" Margin="24,0,0,0"
+                          Content="Alle gefundenen Programme anzeigen" />
+            </StackPanel>
         </StackPanel>
 
         <DataGrid x:Name="Liste" Grid.Row="1"
@@ -38,14 +46,15 @@
             </DataGrid.Columns>
         </DataGrid>
 
-        <DockPanel Grid.Row="2" Margin="0,12,0,0" LastChildFill="False">
-            <CheckBox x:Name="AlleBox" DockPanel.Dock="Left" Click="AlleBox_Click" VerticalAlignment="Center"
-                      Content="Auch sonstige Programme anzeigen" />
-            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+        <!-- Die Knoepfe stehen zuerst, damit sie ihre Breite sicher bekommen; der Text fuellt den Rest. -->
+        <DockPanel Grid.Row="2" Margin="0,12,0,0">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
                 <Button x:Name="OkKnopf" Content="Ausgewählte übernehmen" IsDefault="True" Click="Ok_Click"
                         MinWidth="210" Style="{DynamicResource AccentButtonStyle}" />
                 <Button x:Name="AbbrechenKnopf" Content="Abbrechen" IsCancel="True" MinWidth="110" Margin="8,0,0,0" />
             </StackPanel>
+            <TextBlock x:Name="TrefferText" VerticalAlignment="Center" Opacity="0.7" FontSize="12.5"
+                       TextWrapping="Wrap" Margin="0,0,16,0" />
         </DockPanel>
     </Grid>
 </Window>

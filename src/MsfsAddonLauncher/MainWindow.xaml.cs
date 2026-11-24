@@ -3,6 +3,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -210,7 +212,7 @@ public partial class MainWindow : Window
             Cursor = null;
         }
 
-        Log.Info($"Auto-Erkennung: {ergebnis.Vorschlaege.Count(v => v.Bekannt)} Flugsim-Programm(e) gefunden, " +
+        Log.Info($"Auto-Erkennung: {ergebnis.Vorschlaege.Count(v => v.InHauptliste)} Flugsim-Programm(e) gefunden, " +
                  $"{ergebnis.VomSimGestartet} davon startet der Sim schon selbst, {ergebnis.BereitsVorhanden} stehen bereits in der Liste.");
 
         if (!IsVisible) Zeigen();
@@ -407,6 +409,185 @@ public partial class MainWindow : Window
         Liste.SelectedItem = p;
         Liste_SelectionChanged(Liste, null!);
         Speichern();
+    }
+
+    // ---------- Reihenfolge per Ziehen mit der Maus ----------
+
+    private Point _ziehStart;
+    private AddonProgram? _ziehKandidat;
+    private AddonProgram? _gezogen;
+    private EinfuegeLinie? _linie;
+
+    private void Liste_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        _ziehKandidat = null;
+        var quelle = e.OriginalSource as DependencyObject;
+        // Haken, Spaltenkoepfe und Bildlaufleisten behalten ihr normales Verhalten.
+        if (FindeEltern<CheckBox>(quelle) != null || FindeEltern<DataGridColumnHeader>(quelle) != null ||
+            FindeEltern<ScrollBar>(quelle) != null) return;
+        if (FindeEltern<DataGridRow>(quelle)?.Item is AddonProgram p)
+        {
+            _ziehKandidat = p;
+            _ziehStart = e.GetPosition(Liste);
+        }
+    }
+
+    private void Liste_PreviewMouseMove(object sender, MouseEventArgs e)
+    {
+        if (_ziehKandidat == null) return;
+        if (e.LeftButton != MouseButtonState.Pressed)
+        {
+            _ziehKandidat = null;
+            return;
+        }
+
+        // Erst ab einer kleinen Strecke ist es ein Ziehen, sonst ein normaler Klick oder Doppelklick.
+        var pos = e.GetPosition(Liste);
+        if (Math.Abs(pos.X - _ziehStart.X) < SystemParameters.MinimumHorizontalDragDistance &&
+            Math.Abs(pos.Y - _ziehStart.Y) < SystemParameters.MinimumVerticalDragDistance) return;
+
+        _gezogen = _ziehKandidat;
+        _ziehKandidat = null;
+        try
+        {
+            // Die Liste haelt die Maus fuer ihre eigene Auswahl fest; das muss vor dem Ziehen enden.
+            Mouse.Capture(null);
+            DragDrop.DoDragDrop(Liste, new DataObject("MsfsAddonLauncher.Zeile", _gezogen.Id), DragDropEffects.Move);
+        }
+        catch (Exception ex)
+        {
+            Log.Warnung("Verschieben mit der Maus fehlgeschlagen: " + ex.Message + " Bitte ▲ und ▼ benutzen.");
+        }
+        finally
+        {
+            _gezogen = null;
+            LinieEntfernen();
+        }
+    }
+
+    private void Liste_DragOver(object sender, DragEventArgs e)
+    {
+        e.Handled = true;
+        if (_gezogen == null)
+        {
+            // Dateien oder Text von aussen nimmt die Liste nicht an.
+            e.Effects = DragDropEffects.None;
+            return;
+        }
+
+        e.Effects = DragDropEffects.Move;
+        var maus = e.GetPosition(Liste);
+
+        // Am oberen und unteren Rand mitrollen, damit lange Listen erreichbar bleiben.
+        var rollen = FindeKind<ScrollViewer>(Liste);
+        if (rollen != null)
+        {
+            if (maus.Y < 48) rollen.LineUp();
+            else if (maus.Y > Liste.ActualHeight - 24) rollen.LineDown();
+        }
+
+        LinieZeigen(EinfuegeStelle(maus).Y);
+    }
+
+    private void Liste_DragLeave(object sender, DragEventArgs e)
+    {
+        // Das Ereignis kommt auch beim Wechsel zwischen zwei Zeilen; nur ausserhalb der Liste zaehlt es.
+        var maus = e.GetPosition(Liste);
+        if (maus.X < 0 || maus.Y < 0 || maus.X > Liste.ActualWidth || maus.Y > Liste.ActualHeight)
+            LinieEntfernen();
+    }
+
+    private void Liste_Drop(object sender, DragEventArgs e)
+    {
+        e.Handled = true;
+        var p = _gezogen;
+        LinieEntfernen();
+        if (p == null) return;
+
+        var alt = _programme.IndexOf(p);
+        if (alt < 0) return;
+        var neu = ListTools.ZielIndex(alt, EinfuegeStelle(e.GetPosition(Liste)).Stelle, _programme.Count);
+        if (neu == alt) return;
+
+        _programme.Move(alt, neu);
+        Liste.SelectedItem = p;
+        Liste_SelectionChanged(Liste, null!);
+        Speichern();
+    }
+
+    /// <summary>
+    /// Bestimmt aus der Mausposition die Luecke zwischen zwei Zeilen (0 = vor der ersten Zeile)
+    /// und die Hoehe, auf der die Einfuegelinie gezeichnet wird.
+    /// </summary>
+    private (int Stelle, double Y) EinfuegeStelle(Point maus)
+    {
+        var stelle = 0;
+        double y = 0;
+        for (var i = 0; i < _programme.Count; i++)
+        {
+            // Zeilen ausserhalb des sichtbaren Bereichs gibt es nicht als Element.
+            if (Liste.ItemContainerGenerator.ContainerFromIndex(i) is not DataGridRow zeile || !zeile.IsVisible) continue;
+            var oben = zeile.TranslatePoint(new Point(0, 0), Liste).Y;
+            if (maus.Y < oben + zeile.ActualHeight / 2) return (i, oben);
+            stelle = i + 1;
+            y = oben + zeile.ActualHeight;
+        }
+        return (stelle, y);
+    }
+
+    private void LinieZeigen(double y)
+    {
+        if (_linie == null)
+        {
+            var ebene = AdornerLayer.GetAdornerLayer(Liste);
+            if (ebene == null) return;
+            var farbe = TryFindResource("AccentFillColorDefaultBrush") as Brush ?? SimAn;
+            _linie = new EinfuegeLinie(Liste, farbe);
+            ebene.Add(_linie);
+        }
+        _linie.Setze(Math.Clamp(y, 1, Math.Max(1, Liste.ActualHeight - 1)));
+    }
+
+    private void LinieEntfernen()
+    {
+        if (_linie == null) return;
+        AdornerLayer.GetAdornerLayer(Liste)?.Remove(_linie);
+        _linie = null;
+    }
+
+    private static T? FindeKind<T>(DependencyObject element) where T : DependencyObject
+    {
+        for (var i = 0; i < VisualTreeHelper.GetChildrenCount(element); i++)
+        {
+            var kind = VisualTreeHelper.GetChild(element, i);
+            if (kind is T treffer) return treffer;
+            var tiefer = FindeKind<T>(kind);
+            if (tiefer != null) return tiefer;
+        }
+        return null;
+    }
+
+    /// <summary>Waagerechte Linie, die beim Ziehen zeigt, wo die Zeile landet.</summary>
+    private sealed class EinfuegeLinie : Adorner
+    {
+        private readonly Pen _stift;
+        private double _y;
+
+        public EinfuegeLinie(UIElement ziel, Brush farbe) : base(ziel)
+        {
+            IsHitTestVisible = false;
+            _stift = new Pen(farbe, 2);
+        }
+
+        public void Setze(double y)
+        {
+            if (Math.Abs(y - _y) < 0.5) return;
+            _y = y;
+            InvalidateVisual();
+        }
+
+        protected override void OnRender(DrawingContext zeichnung) =>
+            zeichnung.DrawLine(_stift, new Point(0, _y), new Point(AdornedElement.RenderSize.Width, _y));
     }
 
     private async void EinzelStart_Click(object sender, RoutedEventArgs e)

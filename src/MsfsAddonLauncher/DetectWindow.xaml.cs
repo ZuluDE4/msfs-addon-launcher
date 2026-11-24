@@ -18,7 +18,7 @@ public partial class DetectWindow : Window
         InitializeComponent();
         _alle = ergebnis.Vorschlaege;
 
-        var bekannt = _alle.Count(v => v.Bekannt);
+        var bekannt = _alle.Count(v => v.InHauptliste);
         var sonstige = _alle.Count - bekannt;
 
         if (erststart)
@@ -43,18 +43,56 @@ public partial class DetectWindow : Window
             SimText.Visibility = Visibility.Visible;
         }
 
-        AlleBox.Content = $"Auch sonstige Programme anzeigen ({sonstige})";
+        AlleBox.Content = $"Alle gefundenen Programme anzeigen ({sonstige} weitere)";
         AlleBox.IsEnabled = sonstige > 0;
         // Gibt es keine bekannten Treffer, gleich alles zeigen, damit die Liste nicht leer ist.
         AlleBox.IsChecked = bekannt == 0 && sonstige > 0;
 
         _sicht = CollectionViewSource.GetDefaultView(_alle);
-        _sicht.Filter = o => o is Vorschlag v && (v.Bekannt || v.Auswahl || AlleBox.IsChecked == true);
+        _sicht.Filter = o => o is Vorschlag v && Sichtbar(v, SuchBox.Text, AlleBox.IsChecked == true);
         Liste.ItemsSource = _sicht;
         KnopfAnpassen();
+        TrefferAnzeigen();
     }
 
-    private void AlleBox_Click(object sender, RoutedEventArgs e) => _sicht.Refresh();
+    /// <summary>
+    /// Die Suche geht ueber alle gefundenen Programme, auch ueber die sonst ausgeblendeten.
+    /// Ohne Suchtext stehen in der Liste die erkannten Flugsim-Programme und alles Angehakte.
+    /// </summary>
+    public static bool Sichtbar(Vorschlag v, string? suche, bool alleZeigen)
+    {
+        suche = suche?.Trim() ?? "";
+        if (suche.Length > 0)
+        {
+            return v.Name.Contains(suche, StringComparison.CurrentCultureIgnoreCase) ||
+                   v.ArtText.Contains(suche, StringComparison.CurrentCultureIgnoreCase) ||
+                   v.PfadText.Contains(suche, StringComparison.CurrentCultureIgnoreCase);
+        }
+        return alleZeigen || v.InHauptliste || v.Auswahl;
+    }
+
+    private void TrefferAnzeigen()
+    {
+        var gezeigt = _alle.Count(v => Sichtbar(v, SuchBox.Text, AlleBox.IsChecked == true));
+        TrefferText.Text = gezeigt < _alle.Count
+            ? $"{gezeigt} von {_alle.Count} gefundenen Programmen. Fehlt eins? Oben suchen oder alle anzeigen. " +
+              "Was gar nicht gefunden wird, trägst du im Hauptfenster über „Hinzufügen …“ ein."
+            : $"{_alle.Count} gefundene Programme. Fehlt eins? Im Hauptfenster über „Hinzufügen …“ eintragen.";
+    }
+
+    private void AlleBox_Click(object sender, RoutedEventArgs e)
+    {
+        _sicht.Refresh();
+        TrefferAnzeigen();
+    }
+
+    private void SuchBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+    {
+        // Feuert schon beim Aufbau des Fensters, bevor die Liste gebunden ist.
+        if (_sicht == null) return;
+        _sicht.Refresh();
+        TrefferAnzeigen();
+    }
 
     private void Haken_Click(object sender, RoutedEventArgs e) => KnopfAnpassen();
 

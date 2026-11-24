@@ -4,7 +4,7 @@ Startet deine Zusatzprogramme und den Microsoft Flight Simulator 2024 mit einem 
 wartet mit Programmen, die eine Sim-Verbindung brauchen, bis der Sim bereit ist, und
 schließt sie auf Wunsch wieder, wenn du den Sim beendest.
 
-> **Early Access (Alpha), Version 0.9.** Frühe Testversion eines privaten Hobbyprojekts.
+> **Early Access (Alpha), Version 0.9.1.** Frühe Testversion eines privaten Hobbyprojekts.
 > Sie kann Fehler enthalten und sich jederzeit ändern. Nutzung auf eigene Gefahr, ohne
 > Gewährleistung und ohne Anspruch auf Support. Details unter [Haftungsausschluss](#haftungsausschluss).
 
@@ -46,11 +46,16 @@ dem Ordner `logs` mitschicken.
 ## Bedienung
 
 - **Alles starten** arbeitet die Liste von oben nach unten ab: erst „vor Sim", dann der Sim,
-  dann „nach Sim". Die Reihenfolge änderst du mit ▲ und ▼.
+  dann „nach Sim".
+- **Reihenfolge ändern:** eine Zeile mit der Maus an die gewünschte Stelle ziehen oder ▲ und ▼
+  benutzen. Ob ein Programm vor oder nach dem Sim startet, stellst du über „Bearbeiten …" ein.
 - **Im Profil** (Haken in der ersten Spalte) legt fest, was im gewählten Profil startet.
 - **Verzögerung** ist die Wartezeit direkt vor dem Start des jeweiligen Programms.
 - **Auto-Erkennung** sucht Programme und schlägt sie vor. Übernommen wird nur, was du anhakst.
   Was der Sim (über seine `exe.xml`) oder Windows schon selbst startet, ist nicht angehakt.
+  Die Liste zeigt zuerst nur erkannte Flugsim-Programme, je Programm einmal. Fehlt eins, hilft
+  das Suchfeld (es durchsucht alles Gefundene) oder „Alle gefundenen Programme anzeigen".
+  Was gar nicht gefunden wird, trägst du über „Hinzufügen …" von Hand ein.
 - **Mehr ▾** enthält: alle Profil-Programme schließen, Desktop-Verknüpfung für ein Profil,
   `exe.xml`-Vorschau, Ordner öffnen.
 - **Ein Klick vom Desktop:** „Mehr ▾ → Desktop-Verknüpfung für dieses Profil erstellen".
@@ -124,9 +129,15 @@ Der MSFS Addon Launcher ist ein privates Hobbyprojekt im Stadium Early Access (A
 - Das Projekt steht in keiner Verbindung zu Microsoft, Asobo Studio oder den Herstellern der
   Zusatzprogramme. Alle Namen und Marken gehören ihren jeweiligen Inhabern.
 
-## Stand der Tests (Version 0.9)
+## Stand der Tests (Version 0.9.1)
 
-Version 0.9 ist eine Alpha-Testversion. Geprüft (Stand 24.11.2026): Ersteinrichtung samt
+Neu in 0.9.1 (nach der ersten Rückmeldung): Reihenfolge per Ziehen mit der Maus, Suchfeld und
+„Alle anzeigen" in der Auto-Erkennung, mehr erkannte Programme (z. B. Navigraph Hub), mehrere
+Verknüpfungen zum selben Programm (z. B. vPilot) werden zu einem Eintrag zusammengefasst.
+Die Rechenlogik dahinter ist automatisch geprüft; das Ziehen mit der Maus und das neue Aussehen
+des Erkennungsfensters sind noch **nicht von Hand ausprobiert**.
+
+Version 0.9 war die erste Alpha-Testversion. Dort geprüft (Stand 24.11.2026): Ersteinrichtung samt
 Auto-Erkennung und Übernehmen, Reihenfolge, Verzögerung, „läuft bereits", fehlende Datei,
 deaktiviertes Programm, Warnung „Prozess nicht erkannt", Schließen beim Sim-Ende (automatisch
 und mit Nachfrage), Hart-Beenden eines nicht reagierenden Programms, Minimieren in den

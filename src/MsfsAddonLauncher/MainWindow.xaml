@@ -53,8 +53,11 @@
                   AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False"
                   CanUserResizeRows="False" CanUserSortColumns="False" CanUserReorderColumns="False"
                   IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
-                  HeadersVisibility="Column" GridLinesVisibility="None"
-                  MouseDoubleClick="Liste_MouseDoubleClick" SelectionChanged="Liste_SelectionChanged">
+                  HeadersVisibility="Column" GridLinesVisibility="None" AllowDrop="True"
+                  MouseDoubleClick="Liste_MouseDoubleClick" SelectionChanged="Liste_SelectionChanged"
+                  PreviewMouseLeftButtonDown="Liste_PreviewMouseLeftButtonDown"
+                  PreviewMouseMove="Liste_PreviewMouseMove"
+                  DragOver="Liste_DragOver" DragLeave="Liste_DragLeave" Drop="Liste_Drop">
             <DataGrid.Columns>
                 <DataGridTemplateColumn Header="Im Profil" Width="80">
                     <DataGridTemplateColumn.CellTemplate>
@@ -87,8 +90,11 @@
             </DataGrid.Columns>
         </DataGrid>
 
-        <!-- Knoepfe unter der Liste -->
-        <DockPanel Grid.Row="2" Margin="0,10,0,0" LastChildFill="False">
+        <!-- Hinweis zur Reihenfolge und Knoepfe unter der Liste -->
+        <StackPanel Grid.Row="2">
+        <TextBlock Margin="2,6,0,0" Opacity="0.6" FontSize="12" TextWrapping="Wrap"
+                   Text="Gestartet wird von oben nach unten: erst alles „vor Sim“, dann der Sim, dann alles „nach Sim“. Reihenfolge ändern: Zeile mit der Maus ziehen oder ▲ ▼ benutzen." />
+        <DockPanel Margin="0,8,0,0" LastChildFill="False">
             <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
                 <Button Content="Hinzufügen …" Click="Hinzufuegen_Click" />
                 <Button x:Name="BearbeitenKnopf" Content="Bearbeiten …" Click="Bearbeiten_Click" Margin="6,0,0,0" IsEnabled="False" />
@@ -119,6 +125,7 @@
                 </Button>
             </StackPanel>
         </DockPanel>
+        </StackPanel>
 
         <GridSplitter Grid.Row="3" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
                       Background="Transparent" ResizeDirection="Rows" />

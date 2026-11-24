@@ -19,6 +19,13 @@ public sealed class Vorschlag : ObservableObject
     public string Kategorie { get; set; } = "";
     /// <summary>true = als Flugsim-Zusatzprogramm erkannt (steht im Katalog).</summary>
     public bool Bekannt { get; set; }
+    /// <summary>
+    /// true = weitere Verknuepfung oder Nebenprogramm eines schon gezeigten Programms. Wird erst
+    /// mit "Alle anzeigen" oder ueber die Suche sichtbar, damit die Liste uebersichtlich bleibt.
+    /// </summary>
+    public bool Variante { get; set; }
+    /// <summary>Steht in der Hauptliste des Dialogs (ohne "Alle anzeigen").</summary>
+    public bool InHauptliste => Bekannt && !Variante;
     public StartPhase Start { get; set; } = StartPhase.NachSim;
     public int VerzoegerungSek { get; set; }
     public string ProzessName { get; set; } = "";
@@ -62,7 +69,9 @@ public static class AutoDetect
     // Phase und Verzoegerung sind Startvorschlaege und in der Oberflaeche aenderbar.
     private static readonly KatalogEintrag[] Katalog =
     {
+        // Der erste Treffer gilt: genaue Muster stehen deshalb vor den allgemeinen am Ende der Liste.
         new(new[] { "rex atmos", "rex weather force", "rex accuseason", "rex axis" }, StartPhase.NachSim, 10, "Wetter"),
+        new(new[] { "active sky", "activesky" }, StartPhase.NachSim, 10, "Wetter"),
         // Bei SayIntentions startet ein Updater das eigentliche Programm (auf dem Entwicklungs-PC geprueft).
         new(new[] { "sayintentions" }, StartPhase.NachSim, 15, "ATC", ProzessName: "SayIntentionsAI"),
         new(new[] { "beyondatc", "beyond atc" }, StartPhase.NachSim, 15, "ATC"),
@@ -70,13 +79,20 @@ public static class AutoDetect
         new(new[] { "fshud" }, StartPhase.NachSim, 15, "ATC"),
         new(new[] { "atc chatter" }, StartPhase.NachSim, 15, "ATC"),
         new(new[] { "vpilot" }, StartPhase.NachSim, 15, "ATC"),
+        new(new[] { "ivao" }, StartPhase.NachSim, 15, "ATC"),
+        new(new[] { "pilotedge" }, StartPhase.NachSim, 15, "ATC"),
         new(new[] { "navigraph simlink" }, StartPhase.VorSim, 0, "Navigation", Schliessen: false),
         new(new[] { "navigraph charts" }, StartPhase.VorSim, 0, "Navigation", StandardAn: false),
+        new(new[] { "navigraph hub" }, StartPhase.VorSim, 0, "Navigation", StandardAn: false, Schliessen: false),
+        new(new[] { "simbrief" }, StartPhase.VorSim, 0, "Navigation", StandardAn: false),
         new(new[] { "little navmap" }, StartPhase.VorSim, 0, "Navigation", StandardAn: false),
+        new(new[] { "plan-g" }, StartPhase.VorSim, 0, "Navigation", StandardAn: false),
         new(new[] { "volanta" }, StartPhase.VorSim, 0, "Flugverfolgung"),
         new(new[] { "simtoolkitpro" }, StartPhase.VorSim, 0, "Flugverfolgung"),
         new(new[] { "flyconomy miniclient" }, StartPhase.NachSim, 20, "Airline"),
         new(new[] { "smartcars" }, StartPhase.NachSim, 20, "Airline"),
+        new(new[] { "vamsys", "simacars", "fsairlines" }, StartPhase.NachSim, 20, "Airline"),
+        new(new[] { "neofly", "onair company", "a pilot's life", "skypark", "fseconomy" }, StartPhase.NachSim, 20, "Karriere"),
         new(new[] { "raas pro", "raaspro" }, StartPhase.NachSim, 20, "Cockpit"),
         new(new[] { "fsuipc7" }, StartPhase.NachSim, 10, "Schnittstelle"),
         new(new[] { "spad.next" }, StartPhase.VorSim, 0, "Hardware", Schliessen: false),
@@ -84,30 +100,42 @@ public static class AutoDetect
         new(new[] { "mobiflight" }, StartPhase.VorSim, 0, "Hardware", Schliessen: false),
         new(new[] { "rowsfire", "rf-connect" }, StartPhase.VorSim, 0, "Hardware", StandardAn: false, Schliessen: false),
         new(new[] { "stream deck" }, StartPhase.VorSim, 0, "Hardware", StandardAn: false, Schliessen: false),
+        new(new[] { "simapppro" }, StartPhase.VorSim, 0, "Hardware", StandardAn: false, Schliessen: false),
         new(new[] { "fsltl" }, StartPhase.NachSim, 30, "Verkehr"),
         new(new[] { "traffic audio" }, StartPhase.NachSim, 20, "Verkehr"),
         new(new[] { "apronlife", "apron life" }, StartPhase.NachSim, 20, "Verkehr"),
+        new(new[] { "psxt", "realtraffic", "traffic controller" }, StartPhase.NachSim, 30, "Verkehr"),
         new(new[] { "couatl", "gsx" }, StartPhase.NachSim, 20, "Bodenabfertigung"),
         new(new[] { "self-loading cargo", "selfloadingcargo" }, StartPhase.NachSim, 20, "Kabine"),
         new(new[] { "pacx" }, StartPhase.NachSim, 20, "Kabine"),
         new(new[] { "fsrealistic" }, StartPhase.NachSim, 20, "Effekte"),
         new(new[] { "touchdownfx" }, StartPhase.NachSim, 20, "Effekte"),
-        new(new[] { "simhaptic" }, StartPhase.NachSim, 20, "Effekte"),
+        new(new[] { "simhaptic", "simshaker", "buttkicker" }, StartPhase.NachSim, 20, "Effekte"),
+        new(new[] { "kinetic assistant" }, StartPhase.NachSim, 20, "Effekte"),
         new(new[] { "chaseplane" }, StartPhase.NachSim, 20, "Kamera"),
         new(new[] { "flight recorder", "flightrecorder" }, StartPhase.NachSim, 20, "Aufzeichnung"),
-        new(new[] { "landing rate" }, StartPhase.NachSim, 20, "Aufzeichnung"),
-        new(new[] { "fskneeboard" }, StartPhase.NachSim, 20, "Cockpit"),
+        new(new[] { "landing rate", "landing inspector" }, StartPhase.NachSim, 20, "Aufzeichnung"),
+        new(new[] { "fskneeboard", "openkneeboard" }, StartPhase.NachSim, 20, "Cockpit"),
+        new(new[] { "yourcontrols", "joinfs" }, StartPhase.NachSim, 20, "Mehrspieler"),
         new(new[] { "map enhancement" }, StartPhase.VorSim, 0, "Szenerie",
             Hinweis: "Braucht evtl. Adminrechte"),
-        new(new[] { "opentrack" }, StartPhase.VorSim, 0, "Headtracking", Schliessen: false),
+        new(new[] { "addons linker" }, StartPhase.VorSim, 0, "Verwaltung", StandardAn: false, Schliessen: false),
+        new(new[] { "opentrack", "aitrack" }, StartPhase.VorSim, 0, "Headtracking", Schliessen: false),
         new(new[] { "trackir" }, StartPhase.VorSim, 0, "Headtracking", Schliessen: false),
-        new(new[] { "voiceattack" }, StartPhase.VorSim, 0, "Sprachsteuerung", StandardAn: false, Schliessen: false)
+        new(new[] { "tobii" }, StartPhase.VorSim, 0, "Headtracking", StandardAn: false, Schliessen: false),
+        new(new[] { "voiceattack" }, StartPhase.VorSim, 0, "Sprachsteuerung", StandardAn: false, Schliessen: false),
+        // Allgemeine Muster: werden gezeigt, aber nicht von selbst angehakt.
+        new(new[] { "navigraph" }, StartPhase.VorSim, 0, "Navigation", StandardAn: false, Schliessen: false),
+        new(new[] { "vatsim" }, StartPhase.NachSim, 15, "ATC", StandardAn: false),
+        new(new[] { "fs2crew" }, StartPhase.NachSim, 20, "Cockpit", StandardAn: false),
+        new(new[] { "fenix" }, StartPhase.NachSim, 20, "Flugzeug", StandardAn: false),
+        new(new[] { "acars" }, StartPhase.NachSim, 20, "Airline", StandardAn: false)
     };
 
     private static readonly string[] Unerwuenscht =
     {
         "unins", "deinstall", "documentation", "handbuch", "manual", "release notes", "website",
-        "report a problem", "hilfe zu", "was ist neu", "readme"
+        "report a problem", "hilfe zu", "was ist neu", "readme", "changelog", "license", "lizenz"
     };
 
     public sealed record Ergebnis(List<Vorschlag> Vorschlaege, int BereitsVorhanden, int VomSimGestartet);
@@ -117,9 +145,6 @@ public static class AutoDetect
     {
         var simEintraege = ExeXml.Lesen().Where(e => !e.Deaktiviert).ToList();
         var autostart = AutostartPfade();
-        var vorhanden = new HashSet<string>(
-            cfg.Programme.Select(p => Schluessel(ProcessTools.PfadAufloesen(p.Pfad), p.Argumente)),
-            StringComparer.OrdinalIgnoreCase);
 
         var funde = new List<Vorschlag>();
         var schluessel = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -172,7 +197,20 @@ public static class AutoDetect
                 Hinzu("FSLTL Traffic Injector", fsltl, "", "", "Community-Ordner");
         }
 
-        // 4. Einordnen und markieren.
+        return Einordnen(funde, cfg, simEintraege, autostart);
+    }
+
+    /// <summary>
+    /// Ordnet die gefundenen Programme ein: Katalog, Startvorschlag, Hinweise, Varianten.
+    /// Greift nicht auf den PC zu und laesst sich deshalb mit erfundenen Funden pruefen.
+    /// </summary>
+    public static Ergebnis Einordnen(List<Vorschlag> funde, AppConfig cfg,
+        List<ExeXml.Eintrag> simEintraege, HashSet<string> autostart)
+    {
+        var vorhanden = new HashSet<string>(
+            cfg.Programme.Select(p => Schluessel(ProcessTools.PfadAufloesen(p.Pfad), p.Argumente)),
+            StringComparer.OrdinalIgnoreCase);
+
         var bereitsVorhanden = 0;
         var vomSim = 0;
         var ergebnis = new List<Vorschlag>();
@@ -216,17 +254,48 @@ public static class AutoDetect
             ergebnis.Add(v);
         }
 
-        // Gibt es mehrere Verknuepfungen auf dieselbe Datei (z. B. eine fuer MSFS 2020 und eine fuer 2024),
-        // wird nur eine vorausgewaehlt: bevorzugt die mit "2024" im Namen oder in den Argumenten.
-        foreach (var gruppe in ergebnis.Where(v => v.Auswahl).GroupBy(v => v.Pfad, StringComparer.OrdinalIgnoreCase))
+        // Mehrere Verknuepfungen auf dieselbe Datei (z. B. "vPilot", "vPilot (Host)", "vPilot (Remote)"
+        // oder je eine fuer MSFS 2020 und 2024): Nur eine steht in der Hauptliste, die anderen sind
+        // Varianten. Bevorzugt wird die mit "2024", dann die ohne Argumente, dann der kuerzeste Name.
+        // Gilt nur fuer erkannte Flugsim-Programme: Bei sonstigen Programmen starten verschiedene
+        // Verknuepfungen oft ganz Verschiedenes (z. B. Web-Apps ueber denselben Browser).
+        foreach (var gruppe in ergebnis.Where(v => v.Bekannt).GroupBy(v => v.Pfad, StringComparer.OrdinalIgnoreCase))
         {
             if (gruppe.Count() < 2) continue;
-            var favorit = gruppe.FirstOrDefault(v => (v.Name + " " + v.Argumente).Contains("2024")) ?? gruppe.First();
-            foreach (var v in gruppe) v.Auswahl = ReferenceEquals(v, favorit);
+            var favorit = gruppe
+                .OrderByDescending(v => (v.Name + " " + v.Argumente).Contains("2024"))
+                .ThenBy(v => v.Argumente.Length > 0)
+                .ThenBy(v => v.Name.Length)
+                .First();
+            foreach (var v in gruppe)
+            {
+                if (ReferenceEquals(v, favorit)) continue;
+                v.Variante = true;
+                v.Auswahl = false;
+                v.Hinweis = $"Weitere Verknüpfung zu „{favorit.Name}“";
+            }
+        }
+
+        // Nebenprogramme: Liegt im Ordner eines erkannten Programms eine weitere Datei, die nur wegen
+        // des Ordnernamens als Flugsim-Programm gilt (ein Hilfswerkzeug), ist auch sie eine Variante.
+        foreach (var gruppe in ergebnis
+                     .Where(v => v.Bekannt && !v.Variante)
+                     .GroupBy(v => (Path.GetDirectoryName(v.Pfad) ?? "").ToLowerInvariant() + "|" + v.Kategorie))
+        {
+            if (gruppe.Count() < 2) continue;
+            var haupt = gruppe.FirstOrDefault(v => KatalogTreffer(v.Name, "") != null);
+            if (haupt == null) continue;
+            foreach (var v in gruppe)
+            {
+                if (KatalogTreffer(v.Name, "") != null) continue;
+                v.Variante = true;
+                v.Auswahl = false;
+                v.Hinweis = $"Nebenprogramm von „{haupt.Name}“";
+            }
         }
 
         ergebnis = ergebnis
-            .OrderByDescending(v => v.Bekannt)
+            .OrderByDescending(v => v.InHauptliste)
             .ThenBy(v => v.Name, StringComparer.CurrentCultureIgnoreCase)
             .ToList();
         return new Ergebnis(ergebnis, bereitsVorhanden, vomSim);
