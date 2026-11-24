@@ -4,6 +4,10 @@ Startet deine Zusatzprogramme und den Microsoft Flight Simulator 2024 mit einem 
 wartet mit Programmen, die eine Sim-Verbindung brauchen, bis der Sim bereit ist, und
 schließt sie auf Wunsch wieder, wenn du den Sim beendest.
 
+> **Early Access (Alpha), Version 0.9.** Frühe Testversion eines privaten Hobbyprojekts.
+> Sie kann Fehler enthalten und sich jederzeit ändern. Nutzung auf eigene Gefahr, ohne
+> Gewährleistung und ohne Anspruch auf Support. Details unter [Haftungsausschluss](#haftungsausschluss).
+
 ![Das Hauptfenster](Vorschau.png)
 
 ## Herunterladen und starten
@@ -104,9 +108,22 @@ Vorher den Launcher beenden, sonst ist die exe gesperrt. Die Einstellungen für 
 | `Services\TrayIcon.cs`, `SingleInstance.cs`, `ShortcutTools.cs`, `Log.cs` | Infobereich, Einzelinstanz, Verknüpfungen, Protokoll |
 | `MainWindow`, `ProgramEditWindow`, `SettingsWindow`, `DetectWindow` | Die Fenster |
 
+## Haftungsausschluss
+
+Der MSFS Addon Launcher ist ein privates Hobbyprojekt im Stadium Early Access (Alpha).
+
+- Die Software wird kostenlos und so bereitgestellt, wie sie ist, ohne Gewährleistung für
+  Funktion, Fehlerfreiheit oder Eignung für einen bestimmten Zweck.
+- Die Nutzung erfolgt auf eigene Gefahr. Für Schäden, Datenverlust oder Probleme mit dem
+  Simulator oder mit Zusatzprogrammen wird keine Haftung übernommen, soweit das gesetzlich
+  zulässig ist.
+- Es gibt keinen Anspruch auf Support, Updates oder Fehlerbehebung.
+- Das Projekt steht in keiner Verbindung zu Microsoft, Asobo Studio oder den Herstellern der
+  Zusatzprogramme. Alle Namen und Marken gehören ihren jeweiligen Inhabern.
+
 ## Stand der Tests (Version 0.9)
 
-Version 0.9 ist eine Testversion. Geprüft (Stand 24.11.2026): Ersteinrichtung samt
+Version 0.9 ist eine Alpha-Testversion. Geprüft (Stand 24.11.2026): Ersteinrichtung samt
 Auto-Erkennung und Übernehmen, Reihenfolge, Verzögerung, „läuft bereits", fehlende Datei,
 deaktiviertes Programm, Warnung „Prozess nicht erkannt", Schließen beim Sim-Ende (automatisch
 und mit Nachfrage), Hart-Beenden eines nicht reagierenden Programms, Minimieren in den
