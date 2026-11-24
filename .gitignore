@@ -1,0 +1,10 @@
+# Build-Ausgaben
+bin/
+obj/
+.vs/
+*.user
+
+# Fertige exe samt persoenlicher Konfiguration und Protokollen.
+# Die exe kommt ueber die Releases, nicht ins Repository.
+App/
+logs/

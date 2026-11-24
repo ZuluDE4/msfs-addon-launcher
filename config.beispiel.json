@@ -1,0 +1,129 @@
+// Beispiel-Konfiguration mit den fünf Programmen aus der ursprünglichen Wunschliste.
+// Zum Verwenden: als "config.json" neben die .exe legen und die Pfade anpassen.
+// Kommentare wie dieser sind in der Datei erlaubt, gehen aber beim nächsten Speichern
+// durch den Launcher verloren. Einfacher ist meist die Auto-Erkennung im Programm.
+//
+// Alles mit "PLATZHALTER" in der Notiz konnte nicht allgemein geklärt werden und muss
+// auf dem jeweiligen PC geprüft werden.
+{
+  "version": 1,
+  "sim": {
+    // "Store" (Microsoft Store / Xbox-App), "Steam" oder "Benutzerdefiniert"
+    "variante": "Store",
+    "simStarten": true,
+    // PackageFamilyName + "!App". Prüfen in PowerShell:
+    //   Get-StartApps | Where-Object Name -like '*Flight Simulator 2024*'
+    "storeAppId": "Microsoft.Limitless_8wekyb3d8bbwe!App",
+    // Steht in der Adresse der Steam-Shopseite von MSFS 2024.
+    "steamAppId": "2537590",
+    "eigenerPfad": "",
+    "eigeneArgumente": "",
+    // Prozessname des laufenden Sims ohne ".exe". Prüfen: Task-Manager, Reiter "Details".
+    "prozessNamen": [ "FlightSimulator2024" ],
+    "maxWartenAufSimSek": 600,
+    "simConnectPruefen": true,
+    "maxWartenAufSimConnectSek": 240,
+    "wartezeitNachSimStartSek": 90
+  },
+  "verhalten": {
+    // "Automatisch", "Nachfragen" oder "Nie"
+    "programmeBeiSimEnde": "Automatisch",
+    "schliessenTimeoutSek": 10,
+    "hartBeenden": true,
+    "trayIcon": true,
+    "inTrayMinimieren": true,
+    "nachStartMinimieren": false,
+    "launcherNachSimEndeBeenden": false,
+    "statusIntervallSek": 2
+  },
+  "aktivesProfil": "Airliner komplett",
+  "profile": [
+    { "name": "Airliner komplett", "programme": [ "rex", "sayint", "apron", "traffic", "audio" ] },
+    { "name": "Nur ATC", "programme": [ "sayint" ] },
+    { "name": "Schnellstart", "programme": [] }
+  ],
+  "programme": [
+    {
+      "id": "rex",
+      "name": "REX Atmos Core",
+      // Auf dem Entwicklungs-PC so gefunden; der Installationsort ist frei wählbar.
+      "pfad": "C:\\PLATZHALTER\\Rex Atmos Core\\weathercreator.exe",
+      "argumente": "",
+      "aktiv": true,
+      // "VorSim" oder "NachSim" (NachSim = braucht die Sim-Verbindung)
+      "start": "NachSim",
+      // Wartezeit in Sekunden direkt vor dem Start dieses Programms
+      "verzoegerungSek": 10,
+      "alsAdmin": false,
+      "minimiert": false,
+      "beiSimEndeSchliessen": true,
+      // Leer = Dateiname aus "pfad" (hier also "weathercreator")
+      "prozessName": "",
+      "prozessPfadFilter": "",
+      "notiz": "PLATZHALTER: Pfad anpassen. Bei REX Weather Force heißt die Programmdatei anders."
+    },
+    {
+      "id": "sayint",
+      "name": "SayIntentions.AI",
+      "pfad": "C:\\Program Files\\SayIntentions.AI\\SayIntentionsUpdater3.exe",
+      "argumente": "",
+      "aktiv": true,
+      "start": "NachSim",
+      "verzoegerungSek": 15,
+      "alsAdmin": false,
+      "minimiert": false,
+      "beiSimEndeSchliessen": true,
+      // Gestartet wird ein Updater, das eigentliche Programm heißt anders.
+      "prozessName": "SayIntentionsAI",
+      "prozessPfadFilter": "",
+      "notiz": "Standardpfad des Installers; auf dem Entwicklungs-PC geprüft."
+    },
+    {
+      "id": "apron",
+      "name": "ApronLife",
+      // ApronLife läuft über ein mitgeliefertes node.exe.
+      "pfad": "%LOCALAPPDATA%\\Programs\\ApronLife\\runtime\\node.exe",
+      "argumente": "\"%LOCALAPPDATA%\\Programs\\ApronLife\\app\\apronlife.js\" --portatil",
+      "aktiv": false,
+      "start": "NachSim",
+      "verzoegerungSek": 20,
+      "alsAdmin": false,
+      "minimiert": false,
+      "beiSimEndeSchliessen": true,
+      "prozessName": "node",
+      // Ohne diesen Filter würde jedes node.exe auf dem PC mitgezählt.
+      "prozessPfadFilter": "%LOCALAPPDATA%\\Programs\\ApronLife",
+      "notiz": "Deaktiviert: ApronLife trägt sich selbst in die exe.xml ein und startet dann mit dem Sim. Nur aktivieren, wenn es bei dir NICHT von selbst startet."
+    },
+    {
+      "id": "traffic",
+      "name": "tebs Traffic Audio",
+      "pfad": "%LOCALAPPDATA%\\tebs Traffic Audio\\msfs-traffic-audio.exe",
+      "argumente": "",
+      "aktiv": false,
+      "start": "NachSim",
+      "verzoegerungSek": 20,
+      "alsAdmin": false,
+      "minimiert": false,
+      "beiSimEndeSchliessen": true,
+      "prozessName": "",
+      "prozessPfadFilter": "",
+      "notiz": "Deaktiviert: trägt sich ebenfalls selbst in die exe.xml ein. PLATZHALTER, falls mit \"TABS Traffic\" ein anderes Programm gemeint ist."
+    },
+    {
+      "id": "audio",
+      "name": "Audio-Tool",
+      "pfad": "C:\\PLATZHALTER\\AudioTool.exe",
+      "argumente": "",
+      "aktiv": false,
+      "start": "VorSim",
+      "verzoegerungSek": 0,
+      "alsAdmin": false,
+      "minimiert": true,
+      "beiSimEndeSchliessen": false,
+      "prozessName": "",
+      "prozessPfadFilter": "",
+      "notiz": "PLATZHALTER: Name und Pfad selbst eintragen, dann \"aktiv\" auf true setzen."
+    }
+  ]
+}

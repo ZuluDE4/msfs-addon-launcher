@@ -1,0 +1,20 @@
+<Window x:Class="MsfsAddonLauncher.TextWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Vorschau" Width="900" Height="640" MinWidth="520" MinHeight="320"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TextBox x:Name="TextBox1" Grid.Row="0" IsReadOnly="True" TextWrapping="NoWrap" AcceptsReturn="True"
+                 VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                 FontFamily="Consolas" FontSize="12.5" VerticalContentAlignment="Top" />
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+            <Button Content="In die Zwischenablage" Click="Kopieren_Click" />
+            <Button Content="Als Datei speichern …" Click="Speichern_Click" Margin="8,0,0,0" />
+            <Button Content="Schließen" IsCancel="True" IsDefault="True" MinWidth="110" Margin="8,0,0,0" />
+        </StackPanel>
+    </Grid>
+</Window>

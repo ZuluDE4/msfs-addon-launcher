@@ -1,0 +1,51 @@
+<Window x:Class="MsfsAddonLauncher.DetectWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Auto-Erkennung" Width="1160" Height="680" MinWidth="820" MinHeight="420"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,12">
+            <TextBlock x:Name="TitelText" FontSize="18" FontWeight="SemiBold" Text="Gefundene Programme" />
+            <TextBlock x:Name="ErklaerText" TextWrapping="Wrap" Margin="0,6,0,0" Opacity="0.8" />
+            <TextBlock x:Name="SimText" TextWrapping="Wrap" Margin="0,4,0,0" Opacity="0.8" Visibility="Collapsed" />
+        </StackPanel>
+
+        <DataGrid x:Name="Liste" Grid.Row="1"
+                  AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False"
+                  CanUserResizeRows="False" CanUserReorderColumns="False" IsReadOnly="True"
+                  SelectionMode="Single" HeadersVisibility="Column" GridLinesVisibility="None">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="Übernehmen" Width="105">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding Auswahl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      Click="Haken_Click" MinWidth="0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn ElementStyle="{StaticResource ZellText}" Header="Programm" Binding="{Binding Name}" Width="230" />
+                <DataGridTextColumn ElementStyle="{StaticResource ZellText}" Header="Art" Binding="{Binding ArtText}" Width="125" />
+                <DataGridTextColumn ElementStyle="{StaticResource ZellText}" Header="Start" Binding="{Binding StartText}" Width="80" />
+                <DataGridTextColumn ElementStyle="{StaticResource ZellText}" Header="Hinweis" Binding="{Binding Hinweis}" Width="230" />
+                <DataGridTextColumn ElementStyle="{StaticResource ZellText}" Header="Pfad und Argumente" Binding="{Binding PfadText}" Width="*" />
+                <DataGridTextColumn ElementStyle="{StaticResource ZellText}" Header="Gefunden in" Binding="{Binding Quelle}" Width="125" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <DockPanel Grid.Row="2" Margin="0,12,0,0" LastChildFill="False">
+            <CheckBox x:Name="AlleBox" DockPanel.Dock="Left" Click="AlleBox_Click" VerticalAlignment="Center"
+                      Content="Auch sonstige Programme anzeigen" />
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <Button x:Name="OkKnopf" Content="Ausgewählte übernehmen" IsDefault="True" Click="Ok_Click"
+                        MinWidth="210" Style="{DynamicResource AccentButtonStyle}" />
+                <Button x:Name="AbbrechenKnopf" Content="Abbrechen" IsCancel="True" MinWidth="110" Margin="8,0,0,0" />
+            </StackPanel>
+        </DockPanel>
+    </Grid>
+</Window>

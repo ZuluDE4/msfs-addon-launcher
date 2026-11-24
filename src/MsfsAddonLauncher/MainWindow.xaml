@@ -1,0 +1,148 @@
+<Window x:Class="MsfsAddonLauncher.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MSFS Addon Launcher"
+        Width="1120" Height="740" MinWidth="900" MinHeight="540"
+        WindowStartupLocation="CenterScreen">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" MinHeight="140" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="180" MinHeight="70" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Kopfzeile: Profil, Sim-Status, Start -->
+        <Grid Grid.Row="0" Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0" Text="Profil" Style="{StaticResource Beschriftung}" />
+            <ComboBox x:Name="ProfilBox" Grid.Column="1" Width="230" VerticalAlignment="Center"
+                      DisplayMemberPath="Name" SelectionChanged="ProfilBox_SelectionChanged" />
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="8,0,0,0" VerticalAlignment="Center">
+                <Button Content="Neu" Click="ProfilNeu_Click" ToolTip="Neues Profil anlegen (übernimmt die aktuelle Auswahl)" />
+                <Button Content="Umbenennen" Click="ProfilUmbenennen_Click" Margin="6,0,0,0" />
+                <Button Content="Löschen" Click="ProfilLoeschen_Click" Margin="6,0,0,0" />
+            </StackPanel>
+
+            <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,16,0">
+                <Ellipse x:Name="SimPunkt" Width="11" Height="11" Fill="#7A7F87" VerticalAlignment="Center" />
+                <TextBlock x:Name="SimText" Text="Sim läuft nicht" Margin="8,0,0,0" VerticalAlignment="Center" />
+            </StackPanel>
+            <Button x:Name="StartKnopf" Grid.Column="5" Content="▶  Alles starten" Click="AllesStarten_Click"
+                    Style="{DynamicResource AccentButtonStyle}" FontSize="15" FontWeight="SemiBold"
+                    Padding="22,9" VerticalAlignment="Center"
+                    ToolTip="Startet die angehakten Programme und den Flight Simulator" />
+            <Button x:Name="AbbrechenKnopf" Grid.Column="6" Content="Abbrechen" Click="Abbrechen_Click"
+                    Margin="8,0,0,0" Padding="14,9" VerticalAlignment="Center" IsEnabled="False"
+                    ToolTip="Bricht den laufenden Ablauf ab. Bereits gestartete Programme laufen weiter." />
+        </Grid>
+
+        <!-- Programmliste -->
+        <DataGrid x:Name="Liste" Grid.Row="1"
+                  AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False"
+                  CanUserResizeRows="False" CanUserSortColumns="False" CanUserReorderColumns="False"
+                  IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
+                  HeadersVisibility="Column" GridLinesVisibility="None"
+                  MouseDoubleClick="Liste_MouseDoubleClick" SelectionChanged="Liste_SelectionChanged">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="Im Profil" Width="80">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding ImProfil, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      Click="ImProfil_Click" MinWidth="0" HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"
+                                      ToolTip="Angehakt = wird in diesem Profil gestartet" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Status" Width="170">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0">
+                                <Ellipse Width="10" Height="10" VerticalAlignment="Center"
+                                         Fill="{Binding Status, Converter={StaticResource StatusFarbe}}" />
+                                <TextBlock Text="{Binding StatusText}" Margin="8,0,0,0" VerticalAlignment="Center"
+                                           TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn ElementStyle="{StaticResource ZellText}" Header="Programm" Binding="{Binding Name}" Width="260" />
+                <DataGridTextColumn ElementStyle="{StaticResource ZellText}" Header="Start" Binding="{Binding StartText}" Width="90" />
+                <DataGridTextColumn ElementStyle="{StaticResource ZellText}" Header="Verzögerung" Binding="{Binding VerzoegerungText}" Width="110" />
+                <DataGridTextColumn ElementStyle="{StaticResource ZellText}" Header="Admin" Binding="{Binding AdminText}" Width="70" />
+                <DataGridTextColumn ElementStyle="{StaticResource ZellText}" Header="Schließen" Binding="{Binding SchliessenText}" Width="90" />
+                <DataGridTextColumn ElementStyle="{StaticResource ZellText}" Header="Pfad" Binding="{Binding Pfad}" Width="*" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Knoepfe unter der Liste -->
+        <DockPanel Grid.Row="2" Margin="0,10,0,0" LastChildFill="False">
+            <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                <Button Content="Hinzufügen …" Click="Hinzufuegen_Click" />
+                <Button x:Name="BearbeitenKnopf" Content="Bearbeiten …" Click="Bearbeiten_Click" Margin="6,0,0,0" IsEnabled="False" />
+                <Button x:Name="EntfernenKnopf" Content="Entfernen" Click="Entfernen_Click" Margin="6,0,0,0" IsEnabled="False" />
+                <Button x:Name="HochKnopf" Content="▲" Click="Hoch_Click" Margin="14,0,0,0" IsEnabled="False"
+                        ToolTip="Früher starten (die Liste wird von oben nach unten abgearbeitet)" />
+                <Button x:Name="RunterKnopf" Content="▼" Click="Runter_Click" Margin="6,0,0,0" IsEnabled="False"
+                        ToolTip="Später starten" />
+                <Button x:Name="EinzelStartKnopf" Content="Nur dieses starten" Click="EinzelStart_Click" Margin="14,0,0,0" IsEnabled="False" />
+                <Button x:Name="EinzelStoppKnopf" Content="Dieses schließen" Click="EinzelStopp_Click" Margin="6,0,0,0" IsEnabled="False" />
+            </StackPanel>
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <Button Content="Auto-Erkennung …" Click="AutoErkennung_Click"
+                        ToolTip="Sucht Zusatzprogramme auf diesem PC und schlägt sie vor" />
+                <Button Content="Einstellungen …" Click="Einstellungen_Click" Margin="6,0,0,0" />
+                <Button x:Name="MehrKnopf" Content="Mehr ▾" Click="Mehr_Click" Margin="6,0,0,0">
+                    <Button.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Alle Profil-Programme jetzt schließen" Click="AlleSchliessen_Click" />
+                            <Separator />
+                            <MenuItem Header="Desktop-Verknüpfung für dieses Profil erstellen" Click="Verknuepfung_Click" />
+                            <MenuItem Header="exe.xml-Vorschau anzeigen" Click="ExeXml_Click" />
+                            <Separator />
+                            <MenuItem Header="Ordner mit config.json öffnen" Click="ConfigOrdner_Click" />
+                            <MenuItem Header="Log-Ordner öffnen" Click="LogOrdner_Click" />
+                        </ContextMenu>
+                    </Button.ContextMenu>
+                </Button>
+            </StackPanel>
+        </DockPanel>
+
+        <GridSplitter Grid.Row="3" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                      Background="Transparent" ResizeDirection="Rows" />
+
+        <!-- Protokoll -->
+        <Grid Grid.Row="4">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <DockPanel Grid.Row="0" LastChildFill="False" Margin="0,0,0,6">
+                <TextBlock DockPanel.Dock="Left" Text="Protokoll" FontWeight="SemiBold" VerticalAlignment="Center" />
+                <Button DockPanel.Dock="Right" Content="Leeren" Click="LogLeeren_Click" Padding="10,3"
+                        ToolTip="Leert nur die Anzeige. Die Logdatei bleibt vollständig." />
+            </DockPanel>
+            <TextBox x:Name="LogBox" Grid.Row="1" IsReadOnly="True" TextWrapping="Wrap"
+                     VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                     FontFamily="Consolas" FontSize="12.5" VerticalContentAlignment="Top" />
+        </Grid>
+
+        <!-- Fusszeile -->
+        <DockPanel Grid.Row="5" Margin="0,8,0,0" LastChildFill="False">
+            <TextBlock x:Name="ZustandText" DockPanel.Dock="Left" Text="Bereit" FontWeight="SemiBold" />
+            <TextBlock x:Name="PfadText" DockPanel.Dock="Right" Opacity="0.55" FontSize="12" />
+        </DockPanel>
+    </Grid>
+</Window>

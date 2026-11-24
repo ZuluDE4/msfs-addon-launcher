@@ -1,0 +1,194 @@
+<Window x:Class="MsfsAddonLauncher.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Einstellungen" Width="760" Height="780"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False" ResizeMode="CanResize" MinWidth="620" MinHeight="420">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" Padding="0,0,14,0">
+            <StackPanel>
+
+                <TextBlock Text="Flight Simulator" Style="{StaticResource Abschnitt}" Margin="0,0,0,6" />
+
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="220" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="Version" Style="{StaticResource Beschriftung}" />
+                    <ComboBox x:Name="VarianteBox" Grid.Column="1" SelectionChanged="VarianteBox_SelectionChanged">
+                        <ComboBoxItem Content="Microsoft Store / Xbox-App" />
+                        <ComboBoxItem Content="Steam" />
+                        <ComboBoxItem Content="Eigener Pfad oder eigene Verknüpfung" />
+                    </ComboBox>
+                    <Button Grid.Column="2" Content="Automatisch erkennen" Click="Erkennen_Click" Margin="8,0,0,0" />
+                </Grid>
+                <TextBlock x:Name="ErkennungText" Style="{StaticResource Hinweis}" Margin="220,0,0,8" Visibility="Collapsed" />
+
+                <Grid x:Name="StoreZeile" Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="220" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="Store-App-ID" Style="{StaticResource Beschriftung}" VerticalAlignment="Top" Margin="0,8,12,0" />
+                    <StackPanel Grid.Column="1">
+                        <TextBox x:Name="StoreIdBox" />
+                        <TextBlock Style="{StaticResource Hinweis}"
+                                   Text="PackageFamilyName + „!App“. Prüfen in PowerShell: Get-StartApps | Where-Object Name -like '*Flight Simulator 2024*'" />
+                    </StackPanel>
+                </Grid>
+
+                <Grid x:Name="SteamZeile" Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="220" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="Steam-AppID" Style="{StaticResource Beschriftung}" VerticalAlignment="Top" Margin="0,8,12,0" />
+                    <StackPanel Grid.Column="1">
+                        <TextBox x:Name="SteamIdBox" HorizontalAlignment="Left" Width="160" />
+                        <TextBlock Style="{StaticResource Hinweis}"
+                                   Text="MSFS 2024 hat die AppID 2537590. Sie steht auch in der Adresse der Steam-Shopseite." />
+                    </StackPanel>
+                </Grid>
+
+                <Grid x:Name="EigenZeile" Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="220" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Eigener Pfad" Style="{StaticResource Beschriftung}" />
+                    <TextBox x:Name="EigenPfadBox" Grid.Row="0" Grid.Column="1" Margin="0,0,0,8" />
+                    <Button Grid.Row="0" Grid.Column="2" Content="Durchsuchen …" Click="EigenDurchsuchen_Click" Margin="8,0,0,8" />
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Argumente dazu" Style="{StaticResource Beschriftung}" />
+                    <TextBox x:Name="EigenArgsBox" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" />
+                </Grid>
+
+                <StackPanel Margin="220,0,0,8">
+                    <CheckBox x:Name="SimStartenBox" Content="Sim automatisch starten" />
+                    <TextBlock Style="{StaticResource Hinweis}" Text="Aus = der Launcher wartet, bis du den Sim selbst startest." />
+                </StackPanel>
+
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="220" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="Prozessname des Sims" Style="{StaticResource Beschriftung}" VerticalAlignment="Top" Margin="0,8,12,0" />
+                    <StackPanel Grid.Column="1">
+                        <TextBox x:Name="SimProzessBox" />
+                        <TextBlock Style="{StaticResource Hinweis}"
+                                   Text="Ohne „.exe“, mehrere mit ; trennen. Prüfen: Sim starten, dann im Task-Manager unter „Details“ nachsehen." />
+                    </StackPanel>
+                </Grid>
+
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="220" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="Höchstens warten auf Sim" Style="{StaticResource Beschriftung}" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <TextBox x:Name="MaxSimBox" Width="110" />
+                        <TextBlock Text="Sekunden" VerticalAlignment="Center" Margin="8,0,0,0" />
+                    </StackPanel>
+                </Grid>
+
+                <TextBlock Text="Sim-Verbindung (SimConnect)" Style="{StaticResource Abschnitt}" />
+                <CheckBox x:Name="SimConnectBox" Click="SimConnectBox_Click"
+                          Content="Programme „nach Sim“ erst starten, wenn SimConnect bereit ist (empfohlen)" Margin="0,0,0,8" />
+
+                <Grid x:Name="SimConnectZeile" Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="220" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="Höchstens warten auf SimConnect" Style="{StaticResource Beschriftung}" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <TextBox x:Name="MaxSimConnectBox" Width="110" />
+                        <TextBlock Text="Sekunden, danach geht es trotzdem weiter" VerticalAlignment="Center" Margin="8,0,0,0" />
+                    </StackPanel>
+                </Grid>
+
+                <Grid x:Name="FestZeile" Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="220" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="Feste Wartezeit stattdessen" Style="{StaticResource Beschriftung}" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <TextBox x:Name="FestBox" Width="110" />
+                        <TextBlock Text="Sekunden nach Erscheinen des Sim-Prozesses" VerticalAlignment="Center" Margin="8,0,0,0" />
+                    </StackPanel>
+                </Grid>
+
+                <TextBlock Text="Wenn der Sim beendet wird" Style="{StaticResource Abschnitt}" />
+
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="220" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="Zusatzprogramme schließen" Style="{StaticResource Beschriftung}" VerticalAlignment="Top" Margin="0,8,12,0" />
+                    <StackPanel Grid.Column="1">
+                        <ComboBox x:Name="SchliessenBox" HorizontalAlignment="Left" Width="260">
+                            <ComboBoxItem Content="automatisch" />
+                            <ComboBoxItem Content="vorher nachfragen" />
+                            <ComboBoxItem Content="nie" />
+                        </ComboBox>
+                        <TextBlock Style="{StaticResource Hinweis}"
+                                   Text="Betrifft nur Programme, bei denen „Beim Sim-Ende schließen“ angehakt ist." />
+                    </StackPanel>
+                </Grid>
+
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="220" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="Zeit zum Selbst-Beenden" Style="{StaticResource Beschriftung}" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <TextBox x:Name="TimeoutBox" Width="110" />
+                        <TextBlock Text="Sekunden" VerticalAlignment="Center" Margin="8,0,0,0" />
+                    </StackPanel>
+                </Grid>
+
+                <CheckBox x:Name="HartBox" Content="Was danach noch läuft, hart beenden" Margin="220,0,0,0" />
+                <CheckBox x:Name="LauncherBeendenBox" Content="Danach auch den Launcher beenden" Margin="220,0,0,8" />
+
+                <TextBlock Text="Fenster" Style="{StaticResource Abschnitt}" />
+                <CheckBox x:Name="TrayBox" Click="TrayBox_Click" Content="Symbol im Infobereich (neben der Uhr) anzeigen" />
+                <CheckBox x:Name="TrayMinBox" Content="Beim Minimieren dorthin verschwinden" Margin="28,0,0,0" />
+                <CheckBox x:Name="NachStartMinBox" Content="Fenster nach „Alles starten“ minimieren" Margin="0,0,0,8" />
+
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="220" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="Status prüfen alle" Style="{StaticResource Beschriftung}" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <TextBox x:Name="IntervallBox" Width="110" />
+                        <TextBlock Text="Sekunden" VerticalAlignment="Center" Margin="8,0,0,0" />
+                    </StackPanel>
+                </Grid>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
+            <Button Content="Speichern" IsDefault="True" Click="Ok_Click" MinWidth="110"
+                    Style="{DynamicResource AccentButtonStyle}" />
+            <Button Content="Abbrechen" IsCancel="True" MinWidth="110" Margin="8,0,0,0" />
+        </StackPanel>
+    </Grid>
+</Window>
